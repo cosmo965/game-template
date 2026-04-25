@@ -5,7 +5,7 @@ const BASE_PATH = path.join(__dirname, "../src");
 
 const BLACKLISTED_DIRS = [
   toPosix(path.join(BASE_PATH, "ui")),
-  toPosix(path.join(BASE_PATH, "startup")),
+  toPosix(path.join(BASE_PATH, "runtime")),
 ];
 
 // Tracks folders that are "claimed" by init.luau
@@ -16,6 +16,7 @@ function toPosix(p) {
 }
 
 function toPascalCase(str) {
+  if (str.toLowerCase() === "ui") return "UI";
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
@@ -55,7 +56,7 @@ const tree = {
     ReplicatedStorage: {
       Shared: {
         $className: "Folder",
-        Services: { $className: "Folder", },
+        Features: { $className: "Folder", },
         Classes: {  $className: "Folder", },
         Modules: { $className: "Folder", }
       },
@@ -64,7 +65,7 @@ const tree = {
     },
 
     ServerScriptService: {
-      Server: { $path: "src/startup/Server.server.luau", },
+      Server: { $path: "src/runtime/Server.server.luau", },
       Services: { $className: "Folder", },
       Classes: { $className: "Folder", },
       Modules: { $className: "Folder", },
@@ -72,7 +73,7 @@ const tree = {
 
     StarterPlayer: {
       StarterPlayerScripts: {
-        Client: { $path: "src/startup/Client.client.luau", }
+        Client: { $path: "src/runtime/Client.client.luau", }
       },
     },
   }
@@ -124,6 +125,35 @@ walk(BASE_PATH, (filepath) => {
 
   current[name] = { $path: file };
 });
+
+// Map non-init subfolders of each service's ui/ directory (e.g. Components)
+// so Rojo syncs them as Folder instances even when they contain no .luau files.
+function mapUiSubfolders() {
+  const featuresDir = path.join(BASE_PATH, "features");
+  if (!fs.existsSync(featuresDir)) return;
+
+  for (const feat of fs.readdirSync(featuresDir, { withFileTypes: true })) {
+    if (!feat.isDirectory()) continue;
+    const uiDir = path.join(featuresDir, feat.name, "ui");
+    if (!fs.existsSync(uiDir)) continue;
+
+    for (const sub of fs.readdirSync(uiDir, { withFileTypes: true })) {
+      if (!sub.isDirectory()) continue;
+      const subFull = path.join(uiDir, sub.name);
+      if (fs.existsSync(path.join(subFull, "init.luau"))) continue;
+
+      const featureName = toPascalCase(feat.name);
+      sharedRoot.Features[featureName] = sharedRoot.Features[featureName] || { $className: "Folder" };
+      const featureNode = sharedRoot.Features[featureName];
+      featureNode.UI = featureNode.UI || { $className: "Folder" };
+      featureNode.UI[sub.name] = {
+        $path: toPosix(path.join("src/features", feat.name, "ui", sub.name)),
+      };
+    }
+  }
+}
+
+mapUiSubfolders();
 
 fs.writeFileSync("default.project.json", JSON.stringify(tree, null, 2));
 console.log("✅ default.project.json generated.");

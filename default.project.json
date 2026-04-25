@@ -5,15 +5,30 @@
     "ReplicatedStorage": {
       "Shared": {
         "$className": "Folder",
-        "Services": {
+        "Features": {
           "$className": "Folder",
-          "ExampleService": {
+          "ExampleFeature": {
             "$className": "Folder",
-            "ExampleServiceClient": {
-              "$path": "src/services/ExampleService/Client.luau"
+            "Controller": {
+              "$path": "src/features/ExampleFeature/Controller.luau"
             },
-            "ExampleServiceUtils": {
-              "$path": "src/services/ExampleService/Utils.luau"
+            "Service": {
+              "$path": "src/features/ExampleFeature/Service.luau"
+            },
+            "UI": {
+              "$className": "Folder",
+              "Menu": {
+                "$path": "src/features/ExampleFeature/ui/Menu"
+              },
+              "Components": {
+                "$path": "src/features/ExampleFeature/ui/Components"
+              },
+              "HUD": {
+                "$path": "src/features/ExampleFeature/ui/HUD"
+              }
+            },
+            "ExampleFeatureUtils": {
+              "$path": "src/features/ExampleFeature/Utils.luau"
             }
           }
         },
@@ -33,16 +48,10 @@
     },
     "ServerScriptService": {
       "Server": {
-        "$path": "src/startup/Server.server.luau"
+        "$path": "src/runtime/Server.server.luau"
       },
       "Services": {
-        "$className": "Folder",
-        "ExampleService": {
-          "$className": "Folder",
-          "ExampleServiceServer": {
-            "$path": "src/services/ExampleService/Server.luau"
-          }
-        }
+        "$className": "Folder"
       },
       "Classes": {
         "$className": "Folder"
@@ -54,7 +63,7 @@
     "StarterPlayer": {
       "StarterPlayerScripts": {
         "Client": {
-          "$path": "src/startup/Client.client.luau"
+          "$path": "src/runtime/Client.client.luau"
         }
       }
     }

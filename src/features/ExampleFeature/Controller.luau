@@ -1,0 +1,3 @@
+local ExampleFeatureController = {}
+
+return ExampleFeatureController

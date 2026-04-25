@@ -1,0 +1,14 @@
+/*
+ * Created Date: Saturday April 25th 2026 10:49:50 am CEST
+ * Author: Cosmovyz
+ * -----
+ * Last Modified: Saturday April 25th 2026 10:49:50 am CEST
+ * Modified By: Cosmovyz
+ */
+base: roblox
+name: selene_defs
+globals:
+  # override Roblox require style with string requires
+  require:
+    args:
+      - type: string
