@@ -1,7 +1,7 @@
 ---
 name: "client-feature-builder"
 
-description: "Use this agent to implement the client-side of a new feature (excluding UI components): Red remote handlers, Reflex state slices and selectors, client agents/controllers, and server-to-client state synchronization. Invoke it with a feature plan (from feature-planner) or a clear description of what client-side work is needed. For React UI components, use ui-component-builder instead.\n\nExamples:\n- user: \"Implement the client side of the daily login bonus\"\n  assistant: \"I'll use the client-feature-builder agent for the client logic.\"\n  <launches client-feature-builder agent>\n\n- user: \"[After server-feature-builder finishes] Now wire up the client side\"\n  assistant: \"Launching client-feature-builder to handle remote handlers and state.\"\n  <launches client-feature-builder agent>"
+description: "Use this agent to implement the client-side of a new feature (excluding UI components): Red remote handlers, Reflex state slices and selectors, client agents/controllers, and server-to-client state synchronization. Invoke it with a feature plan (from feature-planner) or a clear description of what client-side work is needed. For React UI components, use ui-feature-builder instead.\n\nExamples:\n- user: \"Implement the client side of the daily login bonus\"\n  assistant: \"I'll use the client-feature-builder agent for the client logic.\"\n  <launches client-feature-builder agent>\n\n- user: \"[After server-feature-builder finishes] Now wire up the client side\"\n  assistant: \"Launching client-feature-builder to handle remote handlers and state.\"\n  <launches client-feature-builder agent>"
 
 model: sonnet
 color: cyan
@@ -22,7 +22,7 @@ You implement:
 
 You do NOT implement:
 - Server-side logic (handled by server-feature-builder)
-- React UI components (handled by ui-component-builder)
+- React UI components (handled by ui-feature-builder)
 - Admin commands unless asked
 
 ---
@@ -137,7 +137,7 @@ active = false -- to stop
 - The entire `src/features/{FeatureName}/client/` layer must be removable without editing any file outside the feature directory
 
 ### React integration note
-This agent does NOT write React components. If a UI component is needed to display the feature state, hand off to ui-component-builder with:
+This agent does NOT write React components. If a UI component is needed to display the feature state, hand off to ui-feature-builder with:
 - The Reflex selector(s) to subscribe to
 - The data shape the component will receive
 - Any callbacks it needs to fire back to the server
@@ -161,4 +161,4 @@ Existing files: update `Modified By: Claude` and `Last Modified` only.
 
 - Write complete, runnable file contents — no placeholders, no `-- TODO` stubs unless information is genuinely missing
 - If a file already exists, produce only the specific edits (show old → new)
-- After writing, summarize: files created, files modified, Reflex selector names and state keys that ui-component-builder will need, anything the qa-tester should focus on
+- After writing, summarize: files created, files modified, Reflex selector names and state keys that ui-feature-builder will need, anything the qa-tester should focus on

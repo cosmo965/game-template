@@ -35,6 +35,7 @@
       "Bash(poetry:*)",
       "Bash(python:*)",
       "Bash(python3:*)",
+      "Bash(ls:*)",
       "Update(*)"
     ],
     "deny": []

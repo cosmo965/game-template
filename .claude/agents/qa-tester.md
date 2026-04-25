@@ -66,7 +66,25 @@ You are a QA engineer embedded in Roblox project. Your job is to audit features 
 - Inputs (`TextBox`) that pass unvalidated strings to remotes — server must `Guard` these; UI should also clamp length before sending
 - Buttons not built with the custom `Button` component (`src/ui/Generic/Components/Button.luau`) — flag as a likely place where debounce / disabled state is missing
 
-### 8. Code Style Violations That Indicate Logic Bugs
+### 8. Performance
+- Heavy work executed in `RenderStepped` / `Heartbeat` / `Stepped` (loops, table allocations, instance creation, expensive math) — should be cached, debounced, or moved off the per-frame loop
+- O(n²) or worse traversals over collections that grow with player count, inventory size, or world chunks (nested loops over `Players:GetPlayers()`, brainrots, plot tiles)
+- Repeated `:GetChildren()` / `:GetDescendants()` / `:FindFirstChild()` calls in hot paths — should be cached or replaced with a maintained lookup table
+- `:WaitForChild()` or `:FindFirstChild()` used inside loops, per-frame callbacks, or repeated event handlers when the child is guaranteed to exist — should be hoisted out of the loop, cached in a local, or accessed directly with `.` (e.g., `model.Humanoid` instead of `model:WaitForChild("Humanoid")` after the model is fully loaded)
+- `:WaitForChild()` without a timeout in code that runs after initial load (silent infinite yield risk)
+- Instance creation inside loops or per-frame callbacks without `ObjectCache` (parts, attachments, GUI elements that should be pooled)
+- Reflex selectors that allocate new tables on every call (breaks referential equality, causes unnecessary React re-renders) — should use `createSelector` or stable references
+- React components re-rendering the entire tree on minor state changes due to missing `useMemo` / `useCallback` or selectors that don't memoize
+- Large tables passed through Red remotes every frame or on high-frequency events — should be diffed, throttled, or replaced with Reflex replication
+- Tween / Spr animations created in tight loops without cleanup, leaking animation state
+- String concatenation in loops (use `table.concat` instead)
+- DataStore / MemoryStore calls inside loops or on high-frequency triggers (rate limit risk + main-thread stalls)
+- Missing throttling on signals that can fire many times per frame (e.g., `:GetPropertyChangedSignal("Position")` on a moving part)
+- Synchronous expensive work on the main thread (large JSON decode, deep table clones via `Sift` on big tables) blocking the heartbeat
+- Connections to `RunService` events that are never disconnected, accumulating across reinitializations
+- Per-player loops on the server that scale O(n) with players but run every frame — should batch or use a single shared loop
+
+### 9. Code Style Violations That Indicate Logic Bugs
 - Multi-condition `if` collapsed onto one line (may hide operator precedence issues)
 - Mixed array/dict tables (selene flags these; they often signal structural confusion)
 - `Signal.new()` used instead of `Signal()` (signals a copy-paste from an older pattern)

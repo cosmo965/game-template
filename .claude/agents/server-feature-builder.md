@@ -24,7 +24,7 @@ You implement:
 
 You do NOT implement:
 - Client-side code (handled by client-feature-builder)
-- UI components (handled by ui-component-builder)
+- UI components (handled by ui-feature-builder)
 - Admin commands unless asked
 
 ---

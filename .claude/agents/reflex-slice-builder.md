@@ -20,7 +20,7 @@ You produce:
 
 You do NOT produce:
 - Remote handlers (server-feature-builder / client-feature-builder)
-- React UI components (ui-component-builder)
+- React UI components (ui-feature-builder)
 - Business logic modules
 - DataService schema — mention required schema changes in your summary instead
 
@@ -207,6 +207,6 @@ Existing files: update `Modified By: Claude` and `Last Modified` only.
 - If a file already exists, produce only the specific edits (show old → new)
 - After writing, summarize:
   - Files created / modified
-  - Exported selector names and the state keys they read — hand this to ui-component-builder or client-feature-builder
+  - Exported selector names and the state keys they read — hand this to ui-feature-builder or client-feature-builder
   - Any DataService schema keys that need to be added (hand to server-feature-builder)
   - Any root producer registration steps needed
