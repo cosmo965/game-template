@@ -2,8 +2,8 @@
 --Created Date: Saturday April 25th 2026 12:37:39 pm CEST
 --Author: Cosmovyz
 -------
---Last Modified: Saturday April 25th 2026 12:54:30 pm CEST
---Modified By: Cosmovyz
+--Last Modified: Friday April 25th 2026 12:00:00 pm CEST
+--Modified By: Claude
 --]]
 
 _G.__DEV__ = false-- if RunService:IsStudio() then true else false
@@ -16,7 +16,7 @@ local Packages = ReplicatedStorage.Packages
 
 local Sift = require(Packages.Sift)
 
-local ClientLoaded = require(ReplicatedStorage.Shared.Remotes.Core.ClientLoaded):Client()
+local ClientLoaded = require(ReplicatedStorage.Shared.ClientLoaded):Client()
 
 local SharedDirectory = ReplicatedStorage.Shared.Features
 local ControllersDirectory = ReplicatedStorage.Client.Features

@@ -2,8 +2,8 @@
 --Created Date: Saturday April 25th 2026 12:37:39 pm CEST
 --Author: Cosmovyz
 -------
---Last Modified: Saturday April 25th 2026 12:44:15 pm CEST
---Modified By: Cosmovyz
+--Last Modified: Friday April 25th 2026 12:00:00 pm CEST
+--Modified By: Claude
 --]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -12,7 +12,7 @@ local Packages = ReplicatedStorage.Packages
 
 local Sift = require(Packages.Sift)
 
-local ClientLoaded = require(ReplicatedStorage.Shared.Remotes.Core.ClientLoaded):Server()
+local ClientLoaded = require(ReplicatedStorage.Shared.ClientLoaded):Server()
 
 local SharedDirectory = ReplicatedStorage.Shared.Features
 local ServiceDirectory = ServerScriptService.Server.Features

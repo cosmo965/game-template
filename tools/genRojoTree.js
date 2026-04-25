@@ -32,7 +32,7 @@ const tree = {
         $className: "Folder",
         Features: { $className: "Folder" },
         Modules: { $className: "Folder" },
-        Remotes: { $path: "src/remotes" },
+        ClientLoaded: { $path: "src/runtime/ClientLoaded.luau" },
       },
     },
 
@@ -101,13 +101,17 @@ function mapFeature(featDirName) {
     clientFeatures[featureName] = clientNode;
   }
 
-  // Shared: Handler + Utils
+  // Shared: Handler + Utils + Remotes
   const sharedNode = { $className: "Folder" };
   if (fs.existsSync(handlerLuau)) {
     sharedNode[handlerName] = { $path: srcPath("features", featDirName, "shared", "Handler.luau") };
   }
   if (fs.existsSync(sharedUtilsLuau)) {
     sharedNode[utilsName] = { $path: srcPath("features", featDirName, "shared", "Utils.luau") };
+  }
+  const remoteLuau = path.join(sharedDir, "Remote.luau");
+  if (fs.existsSync(remoteLuau)) {
+    sharedNode[`${featureName}Remote`] = { $path: srcPath("features", featDirName, "shared", "Remote.luau") };
   }
   if (Object.keys(sharedNode).length > 1) {
     sharedFeatures[featureName] = sharedNode;

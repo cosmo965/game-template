@@ -53,8 +53,8 @@
         "Modules": {
           "$className": "Folder"
         },
-        "Remotes": {
-          "$path": "src/remotes"
+        "ClientLoaded": {
+          "$path": "src/runtime/ClientLoaded.luau"
         }
       }
     },
