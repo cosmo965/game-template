@@ -3,71 +3,91 @@
   "tree": {
     "$className": "DataModel",
     "ReplicatedStorage": {
+      "Client": {
+        "$className": "Folder",
+        "Features": {
+          "$className": "Folder",
+          "ExampleFeature": {
+            "$className": "Folder",
+            "UI": {
+              "$className": "Folder",
+              "Components": {
+                "$path": "src/features/ExampleFeature/ui/Components"
+              },
+              "HUD": {
+                "$path": "src/features/ExampleFeature/ui/HUD"
+              },
+              "Menu": {
+                "$path": "src/features/ExampleFeature/ui/Menu"
+              }
+            },
+            "ExampleFeatureController": {
+              "$path": "src/features/ExampleFeature/client/Controller.luau"
+            },
+            "ExampleFeatureUtils": {
+              "$path": "src/features/ExampleFeature/client/Utils.luau"
+            }
+          }
+        },
+        "UI": {
+          "$path": "src/ui"
+        }
+      },
+      "Packages": {
+        "$path": "Packages"
+      },
       "Shared": {
         "$className": "Folder",
         "Features": {
           "$className": "Folder",
           "ExampleFeature": {
             "$className": "Folder",
-            "Controller": {
-              "$path": "src/features/ExampleFeature/Controller.luau"
-            },
-            "Handler": {
-              "$path": "src/features/ExampleFeature/Handler.luau"
-            },
-            "Service": {
-              "$path": "src/features/ExampleFeature/Service.luau"
-            },
-            "UI": {
-              "$className": "Folder",
-              "HUD": {
-                "$path": "src/features/ExampleFeature/ui/HUD"
-              },
-              "Menu": {
-                "$path": "src/features/ExampleFeature/ui/Menu"
-              },
-              "Components": {
-                "$path": "src/features/ExampleFeature/ui/Components"
-              }
+            "ExampleFeatureHandler": {
+              "$path": "src/features/ExampleFeature/shared/Handler.luau"
             },
             "ExampleFeatureUtils": {
-              "$path": "src/features/ExampleFeature/Utils.luau"
+              "$path": "src/features/ExampleFeature/shared/Utils.luau"
             }
           }
         },
-        "Classes": {
-          "$className": "Folder"
-        },
         "Modules": {
           "$className": "Folder"
+        },
+        "Remotes": {
+          "$path": "src/remotes"
         }
-      },
-      "Packages": {
-        "$path": "Packages"
-      },
-      "UI": {
-        "$path": "src/ui"
       }
     },
     "ServerScriptService": {
       "Server": {
-        "$path": "src/runtime/Server.server.luau"
+        "$className": "Folder",
+        "Features": {
+          "$className": "Folder",
+          "ExampleFeature": {
+            "$className": "Folder",
+            "ExampleFeatureUtils": {
+              "$path": "src/features/ExampleFeature/server/Utils.luau"
+            },
+            "ExampleFeatureService": {
+              "$path": "src/features/ExampleFeature/server/Service.luau"
+            }
+          }
+        }
       },
-      "Services": {
-        "$className": "Folder"
-      },
-      "Classes": {
-        "$className": "Folder"
-      },
-      "Modules": {
-        "$className": "Folder"
+      "Runtime": {
+        "$path": "src/runtime/Runtime.server.luau"
       }
     },
     "StarterPlayer": {
       "StarterPlayerScripts": {
-        "Client": {
-          "$path": "src/runtime/Client.client.luau"
+        "Runtime": {
+          "$path": "src/runtime/Runtime.client.luau"
         }
+      }
+    },
+    "ReplicatedFirst": {
+      "ReplicatedFirst": {
+        "$path": "src/runtime/ReplicatedFirst.client.luau"
       }
     }
   }

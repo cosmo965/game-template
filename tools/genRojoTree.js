@@ -3,15 +3,6 @@ const path = require("path");
 
 const BASE_PATH = path.join(__dirname, "../src");
 
-const BLACKLISTED_DIRS = [
-  toPosix(path.join(BASE_PATH, "ui")),
-  toPosix(path.join(BASE_PATH, "runtime")),
-  toPosix(path.join(BASE_PATH, "features", "ExampleFeature")),
-];
-
-// Tracks folders that are "claimed" by init.luau
-const initClaimedFolders = new Set();
-
 function toPosix(p) {
   return p.split(path.sep).join("/");
 }
@@ -21,32 +12,8 @@ function toPascalCase(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-function getVirtualPath(filepath) {
-  const relativePath = path.relative(BASE_PATH, filepath);
-  const parts = relativePath.split(path.sep);
-  const filename = path.basename(filepath, ".luau");
-  const isServer = filename.toLowerCase().includes("server");
-
-  const folderName = parts.length > 1 ? toPascalCase(parts[parts.length - 2]) : "";
-  let name;
-
-  if (filename === "init") {
-    name = folderName;
-  } else if (["server", "client", "utils", "types"].includes(filename.toLowerCase())) {
-    name = folderName + toPascalCase(filename);
-  } else {
-    name = filename;
-  }
-
-  return {
-    isInit: filename === "init",
-    target: isServer ? "ServerScriptService" : "ReplicatedStorage",
-    folder: parts.slice(0, -1).map(toPascalCase),
-    name,
-    file: filename === "init"
-    ? toPosix(path.join("src", ...parts.slice(0, -1)))
-    : toPosix(path.join("src", ...parts)),
-  };
+function srcPath(...parts) {
+  return toPosix(path.join("src", ...parts));
 }
 
 const tree = {
@@ -55,107 +22,116 @@ const tree = {
     $className: "DataModel",
 
     ReplicatedStorage: {
+      Client: {
+        $className: "Folder",
+        Features: { $className: "Folder" },
+        UI: { $path: "src/ui" },
+      },
+      Packages: { $path: "Packages" },
       Shared: {
         $className: "Folder",
-        Features: { $className: "Folder", },
-        Classes: {  $className: "Folder", },
-        Modules: { $className: "Folder", }
+        Features: { $className: "Folder" },
+        Modules: { $className: "Folder" },
+        Remotes: { $path: "src/remotes" },
       },
-      Packages: { $path: "Packages", },
-      UI: { $path: "src/ui", },
     },
 
     ServerScriptService: {
-      Server: { $path: "src/runtime/Server.server.luau", },
-      Services: { $className: "Folder", },
-      Classes: { $className: "Folder", },
-      Modules: { $className: "Folder", },
+      Server: {
+        $className: "Folder",
+        Features: { $className: "Folder" },
+      },
+      Runtime: { $path: "src/runtime/Runtime.server.luau" },
     },
 
     StarterPlayer: {
       StarterPlayerScripts: {
-        Client: { $path: "src/runtime/Client.client.luau", }
+        Runtime: { $path: "src/runtime/Runtime.client.luau" },
       },
     },
-  }
+
+    ReplicatedFirst: {
+      ReplicatedFirst: { $path: "src/runtime/ReplicatedFirst.client.luau" },
+    }
+  },
 };
 
-const sharedRoot = tree.tree.ReplicatedStorage.Shared;
-const serverRoot = tree.tree.ServerScriptService;
+const clientFeatures = tree.tree.ReplicatedStorage.Client.Features;
+const sharedFeatures = tree.tree.ReplicatedStorage.Shared.Features;
+const serverFeatures = tree.tree.ServerScriptService.Server.Features;
 
-// Recursively walk all files
-function walk(dir, callback) {
-  if (BLACKLISTED_DIRS.includes(toPosix(dir))) return;
+function mapFeature(featDirName) {
+  const featureName = toPascalCase(featDirName);
+  const featDir = path.join(BASE_PATH, "features", featDirName);
 
-  fs.readdirSync(dir, { withFileTypes: true }).forEach((entry) => {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      walk(full, callback);
-    } else if (entry.isFile() && entry.name.endsWith(".luau")) {
-      callback(full);
-    }
-  });
-}
+  const clientDir = path.join(featDir, "client");
+  const sharedDir = path.join(featDir, "shared");
+  const serverDir = path.join(featDir, "server");
+  const uiDir     = path.join(featDir, "ui");
 
-walk(BASE_PATH, (filepath) => {
-  const { target, folder, name, file, isInit } = getVirtualPath(filepath);
-  const root = target === "ServerScriptService" ? serverRoot : sharedRoot;
+  const controllerLuau  = path.join(clientDir, "Controller.luau");
+  const clientUtilsLuau = path.join(clientDir, "Utils.luau");
+  const handlerLuau     = path.join(sharedDir, "Handler.luau");
+  const sharedUtilsLuau = path.join(sharedDir, "Utils.luau");
+  const serviceLuau     = path.join(serverDir, "Service.luau");
+  const serverUtilsLuau = path.join(serverDir, "Utils.luau");
 
-  const fullFolderKey = folder.join("/");
+  const controllerName = `${featureName}Controller`;
+  const handlerName    = `${featureName}Handler`;
+  const serviceName    = `${featureName}Service`;
+  const utilsName      = `${featureName}Utils`;
 
-  // If it's init.luau, promote the parent folder
-  if (isInit) {
-    const parent = folder.slice(0, -1).reduce((acc, part) => {
-      if (!acc[part]) acc[part] = { $className: "Folder" };
-      return acc[part];
-    }, root);
-
-    parent[name] = { $path: file };
-    initClaimedFolders.add(fullFolderKey);
-    return;
-  }
-
-  // If folder was claimed by init.luau, skip assigning children
-  if (initClaimedFolders.has(fullFolderKey)) return;
-
-  let current = root;
-  for (const part of folder) {
-    if (!current[part]) current[part] = { $className: "Folder" };
-    current = current[part];
-  }
-
-  current[name] = { $path: file };
-});
-
-// Map non-init subfolders of each service's ui/ directory (e.g. Components)
-// so Rojo syncs them as Folder instances even when they contain no .luau files.
-function mapUiSubfolders() {
-  const featuresDir = path.join(BASE_PATH, "features");
-  if (!fs.existsSync(featuresDir)) return;
-
-  for (const feat of fs.readdirSync(featuresDir, { withFileTypes: true })) {
-    if (!feat.isDirectory()) continue;
-    if (BLACKLISTED_DIRS.includes(toPosix(path.join(featuresDir, feat.name)))) continue;
-    const uiDir = path.join(featuresDir, feat.name, "ui");
-    if (!fs.existsSync(uiDir)) continue;
-
+  // Client: UI + Controller + Utils
+  const clientNode = { $className: "Folder" };
+  if (fs.existsSync(uiDir) && fs.statSync(uiDir).isDirectory()) {
+    const uiNode = { $className: "Folder" };
     for (const sub of fs.readdirSync(uiDir, { withFileTypes: true })) {
       if (!sub.isDirectory()) continue;
-      const subFull = path.join(uiDir, sub.name);
-      if (fs.existsSync(path.join(subFull, "init.luau"))) continue;
-
-      const featureName = toPascalCase(feat.name);
-      sharedRoot.Features[featureName] = sharedRoot.Features[featureName] || { $className: "Folder" };
-      const featureNode = sharedRoot.Features[featureName];
-      featureNode.UI = featureNode.UI || { $className: "Folder" };
-      featureNode.UI[sub.name] = {
-        $path: toPosix(path.join("src/features", feat.name, "ui", sub.name)),
-      };
+      uiNode[sub.name] = { $path: srcPath("features", featDirName, "ui", sub.name) };
     }
+    if (Object.keys(uiNode).length > 1) clientNode.UI = uiNode;
+  }
+  if (fs.existsSync(controllerLuau)) {
+    clientNode[controllerName] = { $path: srcPath("features", featDirName, "client", "Controller.luau") };
+  }
+  if (fs.existsSync(clientUtilsLuau)) {
+    clientNode[utilsName] = { $path: srcPath("features", featDirName, "client", "Utils.luau") };
+  }
+  if (Object.keys(clientNode).length > 1) {
+    clientFeatures[featureName] = clientNode;
+  }
+
+  // Shared: Handler + Utils
+  const sharedNode = { $className: "Folder" };
+  if (fs.existsSync(handlerLuau)) {
+    sharedNode[handlerName] = { $path: srcPath("features", featDirName, "shared", "Handler.luau") };
+  }
+  if (fs.existsSync(sharedUtilsLuau)) {
+    sharedNode[utilsName] = { $path: srcPath("features", featDirName, "shared", "Utils.luau") };
+  }
+  if (Object.keys(sharedNode).length > 1) {
+    sharedFeatures[featureName] = sharedNode;
+  }
+
+  // Server: Utils + Service
+  const serverNode = { $className: "Folder" };
+  if (fs.existsSync(serverUtilsLuau)) {
+    serverNode[utilsName] = { $path: srcPath("features", featDirName, "server", "Utils.luau") };
+  }
+  if (fs.existsSync(serviceLuau)) {
+    serverNode[serviceName] = { $path: srcPath("features", featDirName, "server", "Service.luau") };
+  }
+  if (Object.keys(serverNode).length > 1) {
+    serverFeatures[featureName] = serverNode;
   }
 }
 
-mapUiSubfolders();
+const featuresDir = path.join(BASE_PATH, "features");
+if (fs.existsSync(featuresDir)) {
+  for (const entry of fs.readdirSync(featuresDir, { withFileTypes: true })) {
+    if (entry.isDirectory()) mapFeature(entry.name);
+  }
+}
 
 fs.writeFileSync("default.project.json", JSON.stringify(tree, null, 2));
 console.log("✅ default.project.json generated.");

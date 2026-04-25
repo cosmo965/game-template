@@ -1,3 +1,0 @@
-local ExampleFeatureController = {}
-
-return ExampleFeatureController
