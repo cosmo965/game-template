@@ -12,19 +12,22 @@
             "Controller": {
               "$path": "src/features/ExampleFeature/Controller.luau"
             },
+            "Handler": {
+              "$path": "src/features/ExampleFeature/Handler.luau"
+            },
             "Service": {
               "$path": "src/features/ExampleFeature/Service.luau"
             },
             "UI": {
               "$className": "Folder",
+              "HUD": {
+                "$path": "src/features/ExampleFeature/ui/HUD"
+              },
               "Menu": {
                 "$path": "src/features/ExampleFeature/ui/Menu"
               },
               "Components": {
                 "$path": "src/features/ExampleFeature/ui/Components"
-              },
-              "HUD": {
-                "$path": "src/features/ExampleFeature/ui/HUD"
               }
             },
             "ExampleFeatureUtils": {

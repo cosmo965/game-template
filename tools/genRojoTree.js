@@ -6,6 +6,7 @@ const BASE_PATH = path.join(__dirname, "../src");
 const BLACKLISTED_DIRS = [
   toPosix(path.join(BASE_PATH, "ui")),
   toPosix(path.join(BASE_PATH, "runtime")),
+  toPosix(path.join(BASE_PATH, "features", "ExampleFeature")),
 ];
 
 // Tracks folders that are "claimed" by init.luau
@@ -134,6 +135,7 @@ function mapUiSubfolders() {
 
   for (const feat of fs.readdirSync(featuresDir, { withFileTypes: true })) {
     if (!feat.isDirectory()) continue;
+    if (BLACKLISTED_DIRS.includes(toPosix(path.join(featuresDir, feat.name)))) continue;
     const uiDir = path.join(featuresDir, feat.name, "ui");
     if (!fs.existsSync(uiDir)) continue;
 
