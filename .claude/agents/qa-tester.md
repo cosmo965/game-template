@@ -30,7 +30,7 @@ You are a QA engineer embedded in Roblox project. Your job is to audit features 
 - Stale Reflex state that diverges from the server's DataStore source of truth
 - Operations that mutate state before the async save completes, then discard changes on failure
 - Missing rollbacks when a multi-step transaction partially fails
-- `DataService:GetData()`
+- `DataUtils:Get()`
 
 ### 4. Edge Cases
 - Empty tables, nil values, or zero quantities passed into systems that don't guard for them

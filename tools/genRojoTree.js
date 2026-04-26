@@ -76,12 +76,22 @@ function mapFeature(featDirName) {
   const serviceLuau     = path.join(serverDir, "Service.luau");
   const serverUtilsLuau = path.join(serverDir, "Utils.luau");
 
-  const controllerName = `${featureName}Controller`;
-  const handlerName    = `${featureName}Handler`;
-  const serviceName    = `${featureName}Service`;
-  const utilsName      = `${featureName}Utils`;
+  const slicesDir        = path.join(featDir, "slices");
+  const clientSliceLuau  = path.join(slicesDir, "Client.luau");
+  const sharedSliceLuau  = path.join(slicesDir, "Shared.luau");
+  const serverSliceLuau  = path.join(slicesDir, "Server.luau");
+
+  const controllerName      = `${featureName}Controller`;
+  const handlerName         = `${featureName}Handler`;
+  const serviceName         = `${featureName}Service`;
+  const clientUtilsName     = `${featureName}ControllerUtils`;
+  const sharedUtilsName     = `${featureName}HandlerUtils`;
+  const serverUtilsName     = `${featureName}ServiceUtils`;
 
   // Client: UI + Controller + Utils
+  // Recognized ui/ subfolders: Components, HUD, Menu, Stories.
+  // Stories holds UI Labs `.story.luau` files used for hot-reload previews
+  // in Studio (Roblox dev). Any other subfolder is also picked up generically.
   const clientNode = { $className: "Folder" };
   if (fs.existsSync(uiDir) && fs.statSync(uiDir).isDirectory()) {
     const uiNode = { $className: "Folder" };
@@ -95,7 +105,10 @@ function mapFeature(featDirName) {
     clientNode[controllerName] = { $path: srcPath("features", featDirName, "client", "Controller.luau") };
   }
   if (fs.existsSync(clientUtilsLuau)) {
-    clientNode[utilsName] = { $path: srcPath("features", featDirName, "client", "Utils.luau") };
+    clientNode[clientUtilsName] = { $path: srcPath("features", featDirName, "client", "Utils.luau") };
+  }
+  if (fs.existsSync(slicesDir) && fs.existsSync(clientSliceLuau)) {
+    clientNode[`${featureName}ClientSlice`] = { $path: srcPath("features", featDirName, "slices", "Client.luau") };
   }
   if (Object.keys(clientNode).length > 1) {
     clientFeatures[featureName] = clientNode;
@@ -107,11 +120,14 @@ function mapFeature(featDirName) {
     sharedNode[handlerName] = { $path: srcPath("features", featDirName, "shared", "Handler.luau") };
   }
   if (fs.existsSync(sharedUtilsLuau)) {
-    sharedNode[utilsName] = { $path: srcPath("features", featDirName, "shared", "Utils.luau") };
+    sharedNode[sharedUtilsName] = { $path: srcPath("features", featDirName, "shared", "Utils.luau") };
   }
   const remoteLuau = path.join(sharedDir, "Remote.luau");
   if (fs.existsSync(remoteLuau)) {
     sharedNode[`${featureName}Remote`] = { $path: srcPath("features", featDirName, "shared", "Remote.luau") };
+  }
+  if (fs.existsSync(slicesDir) && fs.existsSync(sharedSliceLuau)) {
+    sharedNode[`${featureName}SharedSlice`] = { $path: srcPath("features", featDirName, "slices", "Shared.luau") };
   }
   if (Object.keys(sharedNode).length > 1) {
     sharedFeatures[featureName] = sharedNode;
@@ -120,10 +136,13 @@ function mapFeature(featDirName) {
   // Server: Utils + Service
   const serverNode = { $className: "Folder" };
   if (fs.existsSync(serverUtilsLuau)) {
-    serverNode[utilsName] = { $path: srcPath("features", featDirName, "server", "Utils.luau") };
+    serverNode[serverUtilsName] = { $path: srcPath("features", featDirName, "server", "Utils.luau") };
   }
   if (fs.existsSync(serviceLuau)) {
     serverNode[serviceName] = { $path: srcPath("features", featDirName, "server", "Service.luau") };
+  }
+  if (fs.existsSync(slicesDir) && fs.existsSync(serverSliceLuau)) {
+    serverNode[`${featureName}ServerSlice`] = { $path: srcPath("features", featDirName, "slices", "Server.luau") };
   }
   if (Object.keys(serverNode).length > 1) {
     serverFeatures[featureName] = serverNode;

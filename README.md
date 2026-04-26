@@ -125,9 +125,8 @@ For client controllers, you can also implement `CharacterReinitialization(charac
 
 ## Networking
 
-- Define a single Red event per feature in `src/remotes/{Core|Misc}/` and use an `action` parameter to switch behavior.
 - Validate every server-bound payload with **Guard**, and rate-limit with **Ratelimit**.
-- Replication priority: **DataService data replication > Reflex replication > Remote firing**.
+- Replication priority: **DataUtils data replication > Reflex replication > Remote firing**.
 
 ---
 

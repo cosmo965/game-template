@@ -19,13 +19,19 @@
               },
               "Menu": {
                 "$path": "src/features/ExampleFeature/ui/Menu"
+              },
+              "Stories": {
+                "$path": "src/features/ExampleFeature/ui/Stories"
               }
             },
             "ExampleFeatureController": {
               "$path": "src/features/ExampleFeature/client/Controller.luau"
             },
-            "ExampleFeatureUtils": {
+            "ExampleFeatureControllerUtils": {
               "$path": "src/features/ExampleFeature/client/Utils.luau"
+            },
+            "ExampleFeatureClientSlice": {
+              "$path": "src/features/ExampleFeature/slices/Client.luau"
             }
           }
         },
@@ -45,8 +51,11 @@
             "ExampleFeatureHandler": {
               "$path": "src/features/ExampleFeature/shared/Handler.luau"
             },
-            "ExampleFeatureUtils": {
+            "ExampleFeatureHandlerUtils": {
               "$path": "src/features/ExampleFeature/shared/Utils.luau"
+            },
+            "ExampleFeatureSharedSlice": {
+              "$path": "src/features/ExampleFeature/slices/Shared.luau"
             }
           }
         },
@@ -65,11 +74,14 @@
           "$className": "Folder",
           "ExampleFeature": {
             "$className": "Folder",
-            "ExampleFeatureUtils": {
+            "ExampleFeatureServiceUtils": {
               "$path": "src/features/ExampleFeature/server/Utils.luau"
             },
             "ExampleFeatureService": {
               "$path": "src/features/ExampleFeature/server/Service.luau"
+            },
+            "ExampleFeatureServerSlice": {
+              "$path": "src/features/ExampleFeature/slices/Server.luau"
             }
           }
         }

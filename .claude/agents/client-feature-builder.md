@@ -54,19 +54,21 @@ If unsure which to use, stop and ask the user rather than guessing.
 ### Red remote handlers
 - Listen on the same `Red.Event` registered in the feature's `shared/Remote.luau`
 - The event name is `<FeatureName>Remote` (e.g. `ExampleFeatureRemote`)
-- Never put return types or Guard in the Red event function; validate data manually if needed
+- The Guard validator is declared in `Remote.luau` — do not re-declare it on the client. Parameters arriving in the handler are already typed
 
 ```lua
 -- Correct client listen pattern
-local Remote = Red.Event("ExampleFeatureRemote")
+local Remote = Red.Event("ExampleFeatureRemote", function(param1, param2)
+    return Guard.String(param1), Guard.Number(param2)
+end)
 
-Remote:On(function(...)
-    -- handle
+Remote:On(function(param1, param2)
+    -- param1 is string, param2 is number
 end)
 ```
 
 ### Reflex client slice
-- Lives in `src/features/<FeatureName>/client/`
+- Lives in `src/features/<FeatureName>/slices/Client.luau`
 - Mirrors or extends server state that the client needs to render
 - Keep state shape flat and well-named — each key should be self-documenting
 - Each slice covers one cohesive concern; do not mix unrelated state in one slice
@@ -101,6 +103,7 @@ Additional rules:
 - Place it at `src/features/<FeatureName>/client/Controller.luau`
 - Implement `CharacterReinitialization(character)` returning a cleanup function if character-scoped setup is needed
 - Clean up with Trove on player removal if they hold connections
+- Only include `PreInit` and/or `PostInit` if they contain logic to run — omit them entirely when empty
 
 ### Loop cancellation
 - Boolean toggle, never `task.cancel()`
@@ -130,9 +133,17 @@ active = false -- to stop
 
 - Only require from: your own feature directory, `Packages/`, `src/ui/`, and another feature's `Utils.luau`
 - `Utils.luau` is the public API of a feature. Expose in it any function that other features may need to call. Never require another feature's `Controller.luau` or `Handler.luau` directly.
+- Every exposed method on `Utils.luau` must have a `--[[ ]]` comment block directly above it. One sentence: what it does and what it returns (including nil/false failure cases). Do not comment private functions. Example:
+  ```lua
+  --[[
+      Returns the local player's current balance from client state, or 0 if not yet loaded.
+  ]]
+  function CurrencyUtils:GetBalance(): number
+  ```
 - Prefer requiring another feature's `Utils.luau` over Reflex state for inter-feature data sharing — it is simpler and has no subscription edge cases
+- **Naming**: when you require another feature's `Utils.luau`, name the local variable `<FeatureName><Server|Client|Shared>Utils` matching the layer the require resolves to. Examples: `local CurrencyClientUtils = require(ReplicatedStorage.Client.Features.Currency.Utils)`, `local CurrencySharedUtils = require(ReplicatedStorage.Shared.Features.Currency.Utils)`. Never use the bare form `CurrencyUtils` or `Utils`.
 - `Controller.luau` is the sole client entry point; all other files in `client/` (slices, utils, config) are internal helpers required only by `Controller.luau` (except `Utils.luau` which may also be required by other features)
-- All feature-specific constants go in `Config.luau` within the feature's directory — no magic numbers inline
+- All feature-specific constants go in `Config.luau` within the feature's directory — no magic numbers inline; the exported table must be named `CONFIG` (all caps)
 - No logic at require time — all startup code runs inside `PreInit` or `PostInit` only
 - The entire `src/features/{FeatureName}/client/` layer must be removable without editing any file outside the feature directory
 
@@ -143,7 +154,7 @@ This agent does NOT write React components. If a UI component is needed to displ
 - Any callbacks it needs to fire back to the server
 
 ### File headers
-New files:
+New files get the attribution header followed immediately by a feature description block:
 ```lua
 --[[
 --Created Date: [current date/time]
@@ -152,8 +163,16 @@ New files:
 --Last Modified: [current date/time]
 --Modified By: Claude
 --]]
+
+--[[
+    [Brief description of what this specific file does, its role/layer in the feature,
+    and its key dependencies — two to four sentences. Example:]
+    Client controller for the Currency feature. Listens for balance updates from the server
+    and dispatches them to the local Reflex slice for UI consumption.
+    Requires: CurrencyRemote (shared), CurrencyClientSlice (client)
+]]
 ```
-Existing files: update `Modified By: Claude` and `Last Modified` only.
+Existing files: update `Modified By: Claude` and `Last Modified` only — do not add a description block retroactively.
 
 ---
 

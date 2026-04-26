@@ -97,7 +97,7 @@ Each `Commands/<Group>.luau` exports a single `Register(Conch)` function:
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Permissions = require(script.Parent.Parent.Permissions)
-local CurrencyUtils = require(ReplicatedStorage.Shared.Features.Currency.Utils)
+local CurrencySharedUtils = require(ReplicatedStorage.Shared.Features.Currency.Utils)
 
 local Currency = {}
 
@@ -113,7 +113,7 @@ function Currency.Register(Conch)
 				return Conch.log("error", "amount must be positive")
 			end
 
-			CurrencyUtils.AddCurrency(target, kind, amount)
+			CurrencySharedUtils.AddCurrency(target, kind, amount)
 			Conch.log("info", `gave {amount} {kind} to {target.Name}`)
 		end,
 	})
@@ -124,7 +124,8 @@ return Currency
 
 Notes:
 - The callback args do **not** include the executor. Use `Conch.get_command_context().executor` if you need it.
-- All mutation goes through the feature's `Utils.luau`. Never reach into another feature's `Service.luau` or its DataService keys directly.
+- All mutation goes through the feature's `Utils.luau`. Never reach into another feature's `Service.luau` or its DataUtils keys directly.
+- **Naming**: when you require another feature's `Utils.luau`, name the local variable `<FeatureName><Server|Client|Shared>Utils` matching the layer the require resolves to (e.g. `CurrencyServerUtils`, `CurrencySharedUtils`). Never use the bare form `CurrencyUtils` or `Utils`.
 - Always validate inputs even from admins (clamp, sanity-check, reject negatives where they make no sense). Admin commands run server-authoritative — a typo should not corrupt data.
 - If a command kicks, bans, or wipes data, require a stronger permission than `give`-style commands and log who did it.
 
@@ -261,16 +262,16 @@ return AdminCommandsController
 - **Loop cancellation**: boolean toggle, not `task.cancel`.
 - **Modularity**: `src/features/AdminCommands/` must be deletable without editing anything outside it. Only require from: `Packages/`, your own AdminCommands files, and other features' `Utils.luau`. Never require another feature's `Service.luau`, `Controller.luau`, `Handler.luau`, or its `Remote.luau`.
 - **No magic numbers / strings**: permission strings live in `Permissions.luau`, never inline.
-- **No logic at require time**: everything runs inside `PreInit` / `PostInit`.
+- **No logic at require time**: everything runs inside `PreInit` / `PostInit`. Only include `PreInit` and/or `PostInit` if they contain logic — omit empty stubs.
 - **Trust boundary**: even though admin commands run server-side, validate inputs (clamp negatives, range-check, reject empty strings). Treat the admin's typos as adversarial input to the data layer.
 
 ---
 
 ## When the user asks for a command that depends on missing feature plumbing
 
-If the user wants `/givecurrency` but `CurrencyUtils.AddCurrency` does not exist (or the equivalent helper for whatever feature), do not implement the mutation yourself inside `AdminCommands`. Instead, stop and report:
+If the user wants `/givecurrency` but `CurrencySharedUtils.AddCurrency` does not exist (or the equivalent helper for whatever feature), do not implement the mutation yourself inside `AdminCommands`. Instead, stop and report:
 
-> The command `givecurrency` needs `CurrencyUtils.AddCurrency(player, kind, amount)` to exist on the Currency feature, but it isn't exposed. Run server-feature-builder first to add that helper to `src/features/Currency/server/Utils.luau`, then re-invoke me.
+> The command `givecurrency` needs `CurrencySharedUtils.AddCurrency(player, kind, amount)` to exist on the Currency feature, but it isn't exposed. Run server-feature-builder first to add that helper to `src/features/Currency/server/Utils.luau`, then re-invoke me.
 
 This keeps AdminCommands deletable and prevents this agent from drifting into gameplay-feature work.
 

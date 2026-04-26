@@ -26,7 +26,7 @@ You are a software architect embedded in a Roblox tycoon/incremental game projec
 ## Mandatory reads before planning
 
 Before producing a plan, always read:
-- `src/features/` shared folders — how existing Red remotes are structured (one `Remote.luau` per feature in its `shared/` directory, event named `<FeatureName>Remote`, action parameter pattern)
+- `src/features/` shared folders — how existing Red remotes are structured (one `Remote.luau` per feature in its `shared/` directory, event named `<FeatureName>Remote`, Guard validator function as second argument to `Red.Event()`)
 - `src/runtime/Runtime.server.luau` and `src/runtime/Runtime.client.luau` — understand how services/controllers are auto-initialized
 - `src/features/` — scan existing features to understand patterns; read the most similar one's server, client, and shared files in full
 - Any data schema module in the closest existing feature's `server/` directory
@@ -53,21 +53,25 @@ The plan baseline (Remote design through Files to modify) reflects ONLY what the
 
 **Remote design**
 - Remote file location (`src/features/{FeatureName}/shared/Remote.luau`), event name `{FeatureName}Remote`
-- Actions and their payloads (list every action string and what data it carries)
-- Which direction each action flows (client→server or server→client)
+- Parameters and their types (list every parameter the Guard function validates)
+- Which direction each remote flows (client→server or server→client)
 
 **Data schema**
 - New keys added to the player data table (type, default value)
 - Any migration considerations
 
 **Server state (Reflex producer)**
-- New producer slice name and location (`src/features/{FeatureName}/server/`)
+- Slice location: `src/features/{FeatureName}/slices/Server.luau`
 - State shape (table structure)
 - Actions the producer exposes
 
 **Client state (Reflex slice)**
-- Slice name and location (`src/features/{FeatureName}/client/`)
+- Slice location: `src/features/{FeatureName}/slices/Client.luau`
 - What server data it mirrors or extends
+
+**Shared state (Reflex slice, optional)**
+- Slice location: `src/features/{FeatureName}/slices/Shared.luau`
+- Use only when state must be readable on both server and client
 
 **Files to create** — table with columns: Path | Type | Purpose
 **Files to modify** — table with columns: Path | What changes | Why
@@ -86,14 +90,14 @@ The plan baseline (Remote design through Files to modify) reflects ONLY what the
 
 ## Project conventions to apply in planning
 
-- One Red remote per feature area (`Remote.luau` in `shared/`, event named `<FeatureName>Remote`); use an `action` parameter to route sub-operations
+- One Red remote per feature area (`Remote.luau` in `shared/`, event named `<FeatureName>Remote`); pass a Guard validator function as the second argument to `Red.Event()` with the exact parameters the remote expects
 - Server is authoritative — client never mutates owned game state directly
 - State replication priority: data replication > Reflex replication > remote fire replication
 - Guard validates all remote payloads server-side; Ratelimit guards all client→server remotes
 - Loop cancellation: boolean toggles, never `task.cancel()`
-- Feature structure: `src/features/{FeatureName}/` with `client/`, `server/`, `shared/`, `ui/` subdirs
+- Feature structure: `src/features/{FeatureName}/` with `client/`, `server/`, `shared/`, `slices/`, `ui/` subdirs; `slices/` is optional — only create `Server.luau`, `Client.luau`, or `Shared.luau` if the feature needs Reflex state on that side
 - Server auto-initializes files named "Service" or "Handler"; client auto-initializes "Controller" or "Handler"
-- File header: new files get Author and Modified By set to `Claude`
+- File header: new files get Author and Modified By set to `Claude`, followed immediately by a feature description block (`--[[ ]]`) that describes what the file does, its role/layer in the feature, and its key dependencies (two to four sentences)
 
 ---
 
@@ -108,6 +112,7 @@ Every feature plan MUST satisfy all of these. Flag any violation as a blocker in
 **Cross-feature communication — prefer Utils over Reflex**
 - When Feature A needs data or logic from Feature B, require `src/features/FeatureB/{server|client}/Utils.luau` directly — this is simpler and has no subscription edge cases
 - Reserve Reflex state for: UI-reactive data that React components subscribe to, session state that must broadcast to an unknown number of listeners, or server→client broadcast. Not as the default inter-feature channel.
+- **Variable naming**: when planning a require of another feature's `Utils.luau`, dictate the variable name `<FeatureName><Server|Client|Shared>Utils` matching the layer (e.g. `CurrencyServerUtils`, `CurrencyClientUtils`, `CurrencySharedUtils`). Builders must not use the bare `CurrencyUtils` or `Utils` form.
 
 **Layer independence**
 - Each layer (`client/`, `server/`, `shared/`, `ui/`) must be independently addable and removable
@@ -119,10 +124,11 @@ Every feature plan MUST satisfy all of these. Flag any violation as a blocker in
 - If removing the feature requires editing any file outside `src/features/{FeatureName}/`, the plan is not modular enough — redesign it
 
 **Config isolation**
-- Feature-specific constants (prices, cooldowns, tier tables) go in a `Config.luau` within the feature directory, not scattered across logic files or hardcoded inline
+- Feature-specific constants (prices, cooldowns, tier tables) go in a `Config.luau` within the feature directory, not scattered across logic files or hardcoded inline; the exported table must be named `CONFIG` (all caps)
 
 **No side effects on require**
 - Modules must not execute any logic at require time; all startup logic runs inside `PreInit` or `PostInit` only
+- Only include `PreInit` and/or `PostInit` in a module if they contain logic — omit empty stubs entirely
 
 In the **Files to create** table, flag each file's layer (client / server / shared / ui) so it's clear which layers are needed and which can be omitted if the feature is partially deployed.
 

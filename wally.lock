@@ -40,7 +40,7 @@ dependencies = [["Promise", "evaera/promise@4.0.0"], ["React", "jsdotlua/react@1
 [[package]]
 name = "cosmo/game-template-v3"
 version = "0.1.0"
-dependencies = [["Chrono", "parihsz/chrono@1.4.0"], ["Conch", "alicesaidhi/conch@0.3.1"], ["Conch_ui", "alicesaidhi/conch-ui@0.3.1"], ["Future", "red-blox/future@1.0.1"], ["GoodSignal", "stravant/goodsignal@0.3.1"], ["Guard", "red-blox/guard@1.0.1"], ["ObjectCache", "pyseph/objectcache@1.4.6"], ["Observers", "sleitnick/observers@0.5.0"], ["Promise", "evaera/promise@4.0.0"], ["Ratelimit", "red-blox/ratelimit@1.0.1"], ["React", "jsdotlua/react@17.2.1"], ["ReactReflex", "littensy/react-reflex@0.3.6"], ["ReactRoblox", "jsdotlua/react-roblox@17.2.1"], ["ReactSpring", "chriscerie/react-spring@2.0.0"], ["Red", "red-blox/red@2.3.2"], ["Reflex", "littensy/reflex@4.3.1"], ["RthroScaler", "egomoose/rthro-scaler@0.3.0"], ["Sift", "csqrl/sift@0.0.9"], ["Spr", "blackjackiee/spr@1.1.3"], ["Topbarplus", "1foreverhd/topbarplus@3.4.0"], ["Trove", "sleitnick/trove@1.8.0"]]
+dependencies = [["Chrono", "parihsz/chrono@1.4.0"], ["Conch", "alicesaidhi/conch@0.3.1"], ["Conch_ui", "alicesaidhi/conch-ui@0.3.1"], ["Future", "red-blox/future@1.0.1"], ["GoodSignal", "stravant/goodsignal@0.3.1"], ["Guard", "red-blox/guard@1.0.1"], ["ObjectCache", "pyseph/objectcache@1.4.6"], ["Observers", "sleitnick/observers@0.5.0"], ["Promise", "evaera/promise@4.0.0"], ["Ratelimit", "red-blox/ratelimit@1.0.1"], ["React", "jsdotlua/react@17.2.1"], ["ReactReflex", "littensy/react-reflex@0.3.6"], ["ReactRoblox", "jsdotlua/react-roblox@17.2.1"], ["ReactSpring", "chriscerie/react-spring@2.0.0"], ["Red", "red-blox/red@2.3.2"], ["Reflex", "littensy/reflex@4.3.1"], ["RthroScaler", "egomoose/rthro-scaler@0.3.0"], ["Sift", "csqrl/sift@0.0.9"], ["Spr", "blackjackiee/spr@1.1.3"], ["Topbarplus", "1foreverhd/topbarplus@3.4.0"], ["Trove", "sleitnick/trove@1.8.0"], ["UI-labs", "pepeeltoro41/ui-labs@2.4.2"]]
 
 [[package]]
 name = "csqrl/sift"
@@ -160,6 +160,11 @@ dependencies = [["Promise", "evaera/promise@4.0.0"]]
 [[package]]
 name = "parihsz/chrono"
 version = "1.4.0"
+dependencies = []
+
+[[package]]
+name = "pepeeltoro41/ui-labs"
+version = "2.4.2"
 dependencies = []
 
 [[package]]

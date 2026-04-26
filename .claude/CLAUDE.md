@@ -115,6 +115,7 @@ StarterPlayer.StarterPlayerScripts.Runtime → src/runtime/Runtime.client.luau
   - `client/` — `Controller.luau` (auto-initialized by client Runtime), `Utils.luau`
   - `server/` — `Service.luau` (auto-initialized by server Runtime), `Utils.luau`
   - `shared/` — `Handler.luau` (auto-initialized by both Runtimes), `Utils.luau`, `Remote.luau` (Red event named `<FeatureName>Remote`)
+  - `slices/` — optional Reflex state slices: `Server.luau` (server state), `Client.luau` (client state), `Shared.luau` (shared state). Only create files for the sides the feature needs. Missing files are skipped by the Rojo tree generator.
   - `ui/` — `Components/`, `HUD/`, `Menu/`
 - `src/ui/` — shared UI (`AppContainer.luau`, `Generic/Components/`)
 
@@ -143,6 +144,7 @@ StarterPlayer.StarterPlayerScripts.Runtime → src/runtime/Runtime.client.luau
 **Naming**
 - `camelCase` — variables, local functions
 - `PascalCase` — classes, modules, React components, public functions
+- When indexing the `Utils` module of another feature, name the variable `<FeatureName><Server|Client|Shared>Utils` (e.g. `local DailyRewardsServerUtils = require(...)`, `local DailyRewardsClientUtils = require(...)`, `local DailyRewardsSharedUtils = require(...)`).
 
 **General rules**
 - Keep functions small and focused
@@ -172,6 +174,36 @@ StarterPlayer.StarterPlayerScripts.Runtime → src/runtime/Runtime.client.luau
 **Modularity**
 - Make sure when creating a feature, make sure it is broken up into multiple modules to increase readability. Make it modular and easily removed/added.
 
+**Utils method documentation**
+- Every exposed method on a `Utils.luau` module must have a `--[[ ]]` comment block directly above it describing what it does and what it returns. Keep it minimal — one clear sentence is enough.
+- Example:
+  ```lua
+  --[[
+      Returns the player's active profile data, or nil if the profile is not yet loaded.
+  ]]
+  function DataUtils:Get(player: Player): { [string]: any }?
+  
+  --[[
+      Grants currency to the player. Returns true on success, false if data is not loaded.
+  ]]
+  function CurrencyUtils:Grant(player: Player, amount: number): boolean
+  ```
+- Do not write these comments on private functions — only on methods exposed via the returned table.
+
+**Feature file description block**
+- Every new Luau file created as part of a feature must have a `--[[ ]]` comment block immediately after the attribution header (before any `local` declarations).
+- The block must describe: what the file does, its role/layer in the feature, and its key dependencies (what it requires from other features or packages).
+- Keep it concise — two to four sentences. Do not pad with obvious information.
+- Example:
+  ```lua
+  --[[
+      Server service for the Currency feature. Handles granting and spending player currency,
+      validates balances before purchases, and persists changes through DataUtils.
+      Requires: DataUtils (Data feature), CurrencyRemote (shared)
+  ]]
+  ```
+- Existing files: do not retroactively add a description block — only refresh `Modified By` / `Last Modified`.
+
 ---
 
 ## Performance
@@ -190,16 +222,20 @@ StarterPlayer.StarterPlayerScripts.Runtime → src/runtime/Runtime.client.luau
 - Never trust client input for authoritative logic
 - Validate all remote payloads with `Guard`
 - Rate-limit client→server remotes with `Ratelimit`
-- Ignore Red's guard functions. I prefer not to return anything or put any parameters in Red event function
-- For creating Red events for a feature, create `src/features/{FeatureName}/shared/Remote.luau` with a single `Red.Event("<FeatureName>Remote")` and use an action parameter to route sub-operations.
+- Always use Red's guard functions when defining Red events. Pass a Guard validator function as the second argument to `Red.Event()` that accepts the expected parameters and returns them after Guard-checking each one. Example: `Red.Event("ExampleRemote", function(param1, param2) return Guard.String(param1), Guard.Number(param2) end)`.
+- For creating Red events for a feature, create `src/features/{FeatureName}/shared/Remote.luau` returning a `Red.Event("<FeatureName>Remote", ...)` with a guard function that validates all expected parameters individually by type.
+- When referencing a Red remote, always call `:Server()` in server modules and `:Client()` in client modules. Never call both on the same side.
+- In shared modules that reference a remote, do **not** call `:Server()` or `:Client()` at require-time. Instead, check `RunService:IsServer()` at the call site (inside `:Fire()` / `:On()` usage) and call the appropriate side there.
+- On the server, always call `:On()` with a Guard-validated handler. Reject or ignore payloads that fail Guard checks — never trust raw client data.
 
 ---
 
 ## Extra Roblox rules
 - When writing new features, when having to update client state with server state. Prioritize data replication > reflex replication > remote fire replication when implementing. Ask me if you have trouble figuring out which to use.
 - Instead of using `task.cancel()` to cancel loop threads, toggle a boolean and check if that boolean is false/nil in order to stop the loop.
-- When using DataService and trying to retrieve data, prioritize using `DataService:GetData()`.
+- When using DataUtils and trying to retrieve data, prioritize using `DataUtils:Get()`.
 - When writing if-statement guards that only return, have it one lined unless the if statement is long and should be multi-lined.
+- If `PreInit` or `PostInit` has no code to run in a module, omit it entirely — never include empty lifecycle stubs.
 ---
 
 ## React-Lua Rules
