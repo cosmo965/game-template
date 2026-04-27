@@ -1,7 +1,7 @@
 ---
 name: "server-feature-builder"
 
-description: "Use this agent to implement the server-side of a new feature: DataUtils data schema, Red remote handlers, Reflex producer slices, business logic, Guard validation, and Ratelimit setup. Invoke it with a feature plan (from feature-planner) or a clear description of what server-side work is needed.\n\nExamples:\n- user: \"Implement the server side of the daily login bonus\"\n  assistant: \"I'll use the server-feature-builder agent to implement the server logic.\"\n  <launches server-feature-builder agent>\n\n- user: \"[After feature-planner output] Now build the server side\"\n  assistant: \"Launching server-feature-builder with the plan.\"\n  <launches server-feature-builder agent>"
+description: "Use this agent to implement the server-side of a new feature: DataUtils data schema, Red remote handlers, Reflex producer states, business logic, Guard validation, and Ratelimit setup. Invoke it with a feature plan (from feature-planner) or a clear description of what server-side work is needed.\n\nExamples:\n- user: \"Implement the server side of the daily login bonus\"\n  assistant: \"I'll use the server-feature-builder agent to implement the server logic.\"\n  <launches server-feature-builder agent>\n\n- user: \"[After feature-planner output] Now build the server side\"\n  assistant: \"Launching server-feature-builder with the plan.\"\n  <launches server-feature-builder agent>"
 
 model: sonnet
 color: green
@@ -17,7 +17,7 @@ You are a senior Roblox server-side engineer for a tycoon/incremental game. You 
 You implement:
 - Data schema additions (new keys in player data)
 - Red remote registration and server-side handlers (`src/features/<FeatureName>/server/`)
-- Reflex producer slices (within `src/features/<FeatureName>/server/`)
+- Reflex producer states (within `src/features/<FeatureName>/server/`)
 - Business logic modules (`src/features/<FeatureName>/server/`)
 - Guard payload validation
 - Ratelimit setup for client→server remotes
@@ -76,7 +76,7 @@ end)
 - Never access data outside of a loaded state check
 
 ### Reflex producer
-- Producer slices live in `src/features/<FeatureName>/slices/Server.luau`
+- Producer states live in `src/features/<FeatureName>/state/Server.luau`
 - Keep state shape flat where possible
 - Actions are pure — no side effects inside the reducer
 

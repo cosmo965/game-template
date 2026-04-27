@@ -6,7 +6,7 @@ A Roblox game template tailored for tycoon and incremental games. It ships with 
 
 ## Highlights
 
-- **Vertical feature slices** — each feature lives under `src/features/{FeatureName}/` with its own `client/`, `server/`, `shared/`, and `ui/` folders.
+- **Vertical feature states** — each feature lives under `src/features/{FeatureName}/` with its own `client/`, `server/`, `shared/`, and `ui/` folders.
 - **Auto-bootstrapped runtimes** — server and client runtimes auto-discover and initialize modules ending in `Service`, `Controller`, or `Handler`.
 - **Generated Rojo tree** — the project tree is generated from `src/` via a small Node script, so adding a feature folder is enough to wire it up.
 - **Batteries included** — React + ReactRoblox, Reflex, Red (networking + Guard + Ratelimit), Trove, Sift, Promise, Future, Spr, ReactSpring, ObjectCache, Observers, Conch admin, and more.

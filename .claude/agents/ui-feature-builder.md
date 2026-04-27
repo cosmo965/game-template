@@ -77,7 +77,7 @@ Triggered when the user asks to design or build a feature's UI. Examples: "build
 
 **Scope (you do NOT implement)**
 - Server logic — that's `server-feature-builder`
-- Client controllers, remote handlers, Reflex slices — that's `client-feature-builder`
+- Client controllers, remote handlers, Reflex states — that's `client-feature-builder`
 - Modifications to `src/ui/AppContainer.luau` unless the user explicitly asks
 
 **Hard modularity rule:** every Mode B file lives under `src/features/{FeatureName}/ui/`. Deleting that folder must not break anything outside the feature.

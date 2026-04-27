@@ -1,7 +1,7 @@
 ---
 name: "client-feature-builder"
 
-description: "Use this agent to implement the client-side of a new feature (excluding UI components): Red remote handlers, Reflex state slices and selectors, client agents/controllers, and server-to-client state synchronization. Invoke it with a feature plan (from feature-planner) or a clear description of what client-side work is needed. For React UI components, use ui-feature-builder instead.\n\nExamples:\n- user: \"Implement the client side of the daily login bonus\"\n  assistant: \"I'll use the client-feature-builder agent for the client logic.\"\n  <launches client-feature-builder agent>\n\n- user: \"[After server-feature-builder finishes] Now wire up the client side\"\n  assistant: \"Launching client-feature-builder to handle remote handlers and state.\"\n  <launches client-feature-builder agent>"
+description: "Use this agent to implement the client-side of a new feature (excluding UI components): Red remote handlers, Reflex state states and selectors, client agents/controllers, and server-to-client state synchronization. Invoke it with a feature plan (from feature-planner) or a clear description of what client-side work is needed. For React UI components, use ui-feature-builder instead.\n\nExamples:\n- user: \"Implement the client side of the daily login bonus\"\n  assistant: \"I'll use the client-feature-builder agent for the client logic.\"\n  <launches client-feature-builder agent>\n\n- user: \"[After server-feature-builder finishes] Now wire up the client side\"\n  assistant: \"Launching client-feature-builder to handle remote handlers and state.\"\n  <launches client-feature-builder agent>"
 
 model: sonnet
 color: cyan
@@ -16,7 +16,7 @@ You are a senior Roblox client-side engineer for a tycoon/incremental game. You 
 
 You implement:
 - Red remote handlers (`src/features/<FeatureName>/client/`)
-- Reflex client slices and selectors (within `src/features/<FeatureName>/client/`)
+- Reflex client states and selectors (within `src/features/<FeatureName>/client/`)
 - Client controllers (`src/features/<FeatureName>/client/Controller.luau`)
 - Server→client state synchronization (data replication hooks, Reflex dispatch on remote fire)
 
@@ -68,7 +68,7 @@ end)
 ```
 
 ### Reflex client slice
-- Lives in `src/features/<FeatureName>/slices/Client.luau`
+- Lives in `src/features/<FeatureName>/state/Client.luau`
 - Mirrors or extends server state that the client needs to render
 - Keep state shape flat and well-named — each key should be self-documenting
 - Each slice covers one cohesive concern; do not mix unrelated state in one slice
@@ -142,7 +142,7 @@ active = false -- to stop
   ```
 - Prefer requiring another feature's `Utils.luau` over Reflex state for inter-feature data sharing — it is simpler and has no subscription edge cases
 - **Naming**: when you require another feature's `Utils.luau`, name the local variable `<FeatureName><Server|Client|Shared>Utils` matching the layer the require resolves to. Examples: `local CurrencyClientUtils = require(ReplicatedStorage.Client.Features.Currency.Utils)`, `local CurrencySharedUtils = require(ReplicatedStorage.Shared.Features.Currency.Utils)`. Never use the bare form `CurrencyUtils` or `Utils`.
-- `Controller.luau` is the sole client entry point; all other files in `client/` (slices, utils, config) are internal helpers required only by `Controller.luau` (except `Utils.luau` which may also be required by other features)
+- `Controller.luau` is the sole client entry point; all other files in `client/` (states, utils, config) are internal helpers required only by `Controller.luau` (except `Utils.luau` which may also be required by other features)
 - All feature-specific constants go in `Config.luau` within the feature's directory — no magic numbers inline; the exported table must be named `CONFIG` (all caps)
 - No logic at require time — all startup code runs inside `PreInit` or `PostInit` only
 - The entire `src/features/{FeatureName}/client/` layer must be removable without editing any file outside the feature directory

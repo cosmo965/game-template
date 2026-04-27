@@ -7,6 +7,15 @@
         "$className": "Folder",
         "Features": {
           "$className": "Folder",
+          "Data": {
+            "$className": "Folder",
+            "DataController": {
+              "$path": "src/features/Data/client/Controller.luau"
+            },
+            "DataClientSlice": {
+              "$path": "src/features/Data/state/Client.luau"
+            }
+          },
           "ExampleFeature": {
             "$className": "Folder",
             "UI": {
@@ -31,7 +40,19 @@
               "$path": "src/features/ExampleFeature/client/Utils.luau"
             },
             "ExampleFeatureClientSlice": {
-              "$path": "src/features/ExampleFeature/slices/Client.luau"
+              "$path": "src/features/ExampleFeature/state/Client.luau"
+            }
+          },
+          "Reflex": {
+            "$className": "Folder",
+            "ReflexController": {
+              "$path": "src/features/Reflex/client/Controller.luau"
+            },
+            "ReflexControllerUtils": {
+              "$path": "src/features/Reflex/client/Utils.luau"
+            },
+            "Internal": {
+              "$path": "src/features/Reflex/client/Internal.luau"
             }
           }
         },
@@ -55,7 +76,16 @@
               "$path": "src/features/ExampleFeature/shared/Utils.luau"
             },
             "ExampleFeatureSharedSlice": {
-              "$path": "src/features/ExampleFeature/slices/Shared.luau"
+              "$path": "src/features/ExampleFeature/state/Shared.luau"
+            }
+          },
+          "Reflex": {
+            "$className": "Folder",
+            "ReflexRemote": {
+              "$path": "src/features/Reflex/shared/Remote.luau"
+            },
+            "Logger": {
+              "$path": "src/features/Reflex/shared/Logger.luau"
             }
           }
         },
@@ -72,6 +102,30 @@
         "$className": "Folder",
         "Features": {
           "$className": "Folder",
+          "Data": {
+            "$className": "Folder",
+            "DataServiceUtils": {
+              "$path": "src/features/Data/server/Utils.luau"
+            },
+            "DataService": {
+              "$path": "src/features/Data/server/Service.luau"
+            },
+            "DataServerSlice": {
+              "$path": "src/features/Data/state/Server.luau"
+            },
+            "Config": {
+              "$path": "src/features/Data/server/Config.luau"
+            },
+            "Internal": {
+              "$path": "src/features/Data/server/Internal.luau"
+            },
+            "ProfileStore": {
+              "$path": "src/features/Data/server/ProfileStore.luau"
+            },
+            "Template": {
+              "$path": "src/features/Data/server/Template.luau"
+            }
+          },
           "ExampleFeature": {
             "$className": "Folder",
             "ExampleFeatureServiceUtils": {
@@ -81,7 +135,19 @@
               "$path": "src/features/ExampleFeature/server/Service.luau"
             },
             "ExampleFeatureServerSlice": {
-              "$path": "src/features/ExampleFeature/slices/Server.luau"
+              "$path": "src/features/ExampleFeature/state/Server.luau"
+            }
+          },
+          "Reflex": {
+            "$className": "Folder",
+            "ReflexServiceUtils": {
+              "$path": "src/features/Reflex/server/Utils.luau"
+            },
+            "ReflexService": {
+              "$path": "src/features/Reflex/server/Service.luau"
+            },
+            "Internal": {
+              "$path": "src/features/Reflex/server/Internal.luau"
             }
           }
         }

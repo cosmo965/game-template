@@ -76,10 +76,10 @@ function mapFeature(featDirName) {
   const serviceLuau     = path.join(serverDir, "Service.luau");
   const serverUtilsLuau = path.join(serverDir, "Utils.luau");
 
-  const slicesDir        = path.join(featDir, "slices");
-  const clientSliceLuau  = path.join(slicesDir, "Client.luau");
-  const sharedSliceLuau  = path.join(slicesDir, "Shared.luau");
-  const serverSliceLuau  = path.join(slicesDir, "Server.luau");
+  const stateDir        = path.join(featDir, "state");
+  const clientSliceLuau  = path.join(stateDir, "Client.luau");
+  const sharedSliceLuau  = path.join(stateDir, "Shared.luau");
+  const serverSliceLuau  = path.join(stateDir, "Server.luau");
 
   const controllerName      = `${featureName}Controller`;
   const handlerName         = `${featureName}Handler`;
@@ -107,8 +107,17 @@ function mapFeature(featDirName) {
   if (fs.existsSync(clientUtilsLuau)) {
     clientNode[clientUtilsName] = { $path: srcPath("features", featDirName, "client", "Utils.luau") };
   }
-  if (fs.existsSync(slicesDir) && fs.existsSync(clientSliceLuau)) {
-    clientNode[`${featureName}ClientSlice`] = { $path: srcPath("features", featDirName, "slices", "Client.luau") };
+  if (fs.existsSync(stateDir) && fs.existsSync(clientSliceLuau)) {
+    clientNode[`${featureName}ClientSlice`] = { $path: srcPath("features", featDirName, "state", "Client.luau") };
+  }
+  // Map any extra .luau files in client/ that aren't already mapped (Controller.luau, Utils.luau)
+  if (fs.existsSync(clientDir)) {
+    const knownClientFiles = new Set(["Controller.luau", "Utils.luau"]);
+    for (const f of fs.readdirSync(clientDir)) {
+      if (!f.endsWith(".luau") || knownClientFiles.has(f)) continue;
+      const baseName = f.slice(0, -5); // strip .luau
+      clientNode[baseName] = { $path: srcPath("features", featDirName, "client", f) };
+    }
   }
   if (Object.keys(clientNode).length > 1) {
     clientFeatures[featureName] = clientNode;
@@ -126,14 +135,23 @@ function mapFeature(featDirName) {
   if (fs.existsSync(remoteLuau)) {
     sharedNode[`${featureName}Remote`] = { $path: srcPath("features", featDirName, "shared", "Remote.luau") };
   }
-  if (fs.existsSync(slicesDir) && fs.existsSync(sharedSliceLuau)) {
-    sharedNode[`${featureName}SharedSlice`] = { $path: srcPath("features", featDirName, "slices", "Shared.luau") };
+  if (fs.existsSync(stateDir) && fs.existsSync(sharedSliceLuau)) {
+    sharedNode[`${featureName}SharedSlice`] = { $path: srcPath("features", featDirName, "state", "Shared.luau") };
+  }
+  // Map any extra .luau files in shared/ that aren't already mapped (Handler.luau, Utils.luau, Remote.luau)
+  if (fs.existsSync(sharedDir)) {
+    const knownSharedFiles = new Set(["Handler.luau", "Utils.luau", "Remote.luau"]);
+    for (const f of fs.readdirSync(sharedDir)) {
+      if (!f.endsWith(".luau") || knownSharedFiles.has(f)) continue;
+      const baseName = f.slice(0, -5); // strip .luau
+      sharedNode[baseName] = { $path: srcPath("features", featDirName, "shared", f) };
+    }
   }
   if (Object.keys(sharedNode).length > 1) {
     sharedFeatures[featureName] = sharedNode;
   }
 
-  // Server: Utils + Service
+  // Server: Utils + Service + any extra .luau files in server/ (e.g. Config, Template, Internal, ProfileStore)
   const serverNode = { $className: "Folder" };
   if (fs.existsSync(serverUtilsLuau)) {
     serverNode[serverUtilsName] = { $path: srcPath("features", featDirName, "server", "Utils.luau") };
@@ -141,8 +159,17 @@ function mapFeature(featDirName) {
   if (fs.existsSync(serviceLuau)) {
     serverNode[serviceName] = { $path: srcPath("features", featDirName, "server", "Service.luau") };
   }
-  if (fs.existsSync(slicesDir) && fs.existsSync(serverSliceLuau)) {
-    serverNode[`${featureName}ServerSlice`] = { $path: srcPath("features", featDirName, "slices", "Server.luau") };
+  if (fs.existsSync(stateDir) && fs.existsSync(serverSliceLuau)) {
+    serverNode[`${featureName}ServerSlice`] = { $path: srcPath("features", featDirName, "state", "Server.luau") };
+  }
+  // Map any extra .luau files in server/ that aren't already mapped (Utils.luau, Service.luau)
+  if (fs.existsSync(serverDir)) {
+    const knownServerFiles = new Set(["Utils.luau", "Service.luau"]);
+    for (const f of fs.readdirSync(serverDir)) {
+      if (!f.endsWith(".luau") || knownServerFiles.has(f)) continue;
+      const baseName = f.slice(0, -5); // strip .luau
+      serverNode[baseName] = { $path: srcPath("features", featDirName, "server", f) };
+    }
   }
   if (Object.keys(serverNode).length > 1) {
     serverFeatures[featureName] = serverNode;

@@ -2,7 +2,7 @@
 --Created Date: Saturday April 25th 2026 12:37:39 pm CEST
 --Author: Cosmovyz
 -------
---Last Modified: Friday April 25th 2026 12:00:00 pm CEST
+--Last Modified: Sunday April 26th 2026 12:00:00 pm CEST
 --Modified By: Claude
 --]]
 
@@ -37,7 +37,7 @@ local function Start(container: {})
 		end
 		local pass = false
 		for _, whitelistedName in WHITELISTED_MODULE_NAMES do
-			if string.find(module.Name, whitelistedName) then
+			if module.Name:sub(-#whitelistedName) == whitelistedName then
 				pass = true
 				break
 			end
@@ -46,17 +46,11 @@ local function Start(container: {})
 			continue
 		end
 
-		local realModuleName = module.Parent and module.Parent.Name
-		if not realModuleName then
-			warn("No real module name")
-			continue
-		end
-
-		cache[realModuleName] = require(module)
+		cache[module.Name] = require(module)
 
 		-- initialization before all modules - right after requiring the said module
-		if cache[realModuleName] and cache[realModuleName].PreInit then
-			task.spawn(cache[realModuleName].PreInit)
+		if cache[module.Name] and cache[module.Name].PreInit then
+			task.spawn(cache[module.Name].PreInit)
 		end
 	end
 

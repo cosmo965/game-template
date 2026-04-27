@@ -6,9 +6,9 @@ type: project
 
 The combined Reflex producer lives at `ReflexController.Store` (set in `PreInit`). AppContainer imports it as `RootProducer.Store`.
 
-Slices key: `PlayerData` (matches server `combineProducers({ PlayerData = PlayerDataSlice })`).
+states key: `PlayerData` (matches server `combineProducers({ PlayerData = PlayerDataSlice })`).
 
-Client selectors in `src/features/Reflex/client/Slices/PlayerData.luau`:
+Client selectors in `src/features/Reflex/client/state/PlayerData.luau`:
 - `selectMyData(state)` — full data table for LocalPlayer, or nil
 - `selectMyCoins(state)` — `data.Coins` or nil
 - `selectMyJoinCount(state)` — `data.JoinCount` or nil

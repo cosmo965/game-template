@@ -115,7 +115,7 @@ StarterPlayer.StarterPlayerScripts.Runtime → src/runtime/Runtime.client.luau
   - `client/` — `Controller.luau` (auto-initialized by client Runtime), `Utils.luau`
   - `server/` — `Service.luau` (auto-initialized by server Runtime), `Utils.luau`
   - `shared/` — `Handler.luau` (auto-initialized by both Runtimes), `Utils.luau`, `Remote.luau` (Red event named `<FeatureName>Remote`)
-  - `slices/` — optional Reflex state slices: `Server.luau` (server state), `Client.luau` (client state), `Shared.luau` (shared state). Only create files for the sides the feature needs. Missing files are skipped by the Rojo tree generator.
+  - `state/` — optional Reflex state states: `Server.luau` (server state), `Client.luau` (client state), `Shared.luau` (shared state). Only create files for the sides the feature needs. Missing files are skipped by the Rojo tree generator.
   - `ui/` — `Components/`, `HUD/`, `Menu/`
 - `src/ui/` — shared UI (`AppContainer.luau`, `Generic/Components/`)
 
@@ -144,6 +144,7 @@ StarterPlayer.StarterPlayerScripts.Runtime → src/runtime/Runtime.client.luau
 **Naming**
 - `camelCase` — variables, local functions
 - `PascalCase` — classes, modules, React components, public functions
+- `SCREAMING_SNAKE_CASE` — template modules or config modules that return static metadata/configuration (e.g. `CURRENCY_CONFIG`, `ITEM_TEMPLATE`, `REWARD_TABLE`).
 - When indexing the `Utils` module of another feature, name the variable `<FeatureName><Server|Client|Shared>Utils` (e.g. `local DailyRewardsServerUtils = require(...)`, `local DailyRewardsClientUtils = require(...)`, `local DailyRewardsSharedUtils = require(...)`).
 
 **General rules**

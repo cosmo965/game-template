@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "terminal-64": {
+      "args": [
+        "\\\\?\\C:\\Users\\troyn\\OneDrive\\Desktop\\Roblox Projects\\terminal-64\\src-tauri\\target\\debug/mcp/t64-server.mjs"
+      ],
+      "command": "C:\\Program Files\\nodejs\\node.exe"
+    }
+  }
+}

@@ -61,16 +61,16 @@ The plan baseline (Remote design through Files to modify) reflects ONLY what the
 - Any migration considerations
 
 **Server state (Reflex producer)**
-- Slice location: `src/features/{FeatureName}/slices/Server.luau`
+- Slice location: `src/features/{FeatureName}/state/Server.luau`
 - State shape (table structure)
 - Actions the producer exposes
 
 **Client state (Reflex slice)**
-- Slice location: `src/features/{FeatureName}/slices/Client.luau`
+- Slice location: `src/features/{FeatureName}/state/Client.luau`
 - What server data it mirrors or extends
 
 **Shared state (Reflex slice, optional)**
-- Slice location: `src/features/{FeatureName}/slices/Shared.luau`
+- Slice location: `src/features/{FeatureName}/state/Shared.luau`
 - Use only when state must be readable on both server and client
 
 **Files to create** — table with columns: Path | Type | Purpose
@@ -95,7 +95,7 @@ The plan baseline (Remote design through Files to modify) reflects ONLY what the
 - State replication priority: data replication > Reflex replication > remote fire replication
 - Guard validates all remote payloads server-side; Ratelimit guards all client→server remotes
 - Loop cancellation: boolean toggles, never `task.cancel()`
-- Feature structure: `src/features/{FeatureName}/` with `client/`, `server/`, `shared/`, `slices/`, `ui/` subdirs; `slices/` is optional — only create `Server.luau`, `Client.luau`, or `Shared.luau` if the feature needs Reflex state on that side
+- Feature structure: `src/features/{FeatureName}/` with `client/`, `server/`, `shared/`, `state/`, `ui/` subdirs; `state/` is optional — only create `Server.luau`, `Client.luau`, or `Shared.luau` if the feature needs Reflex state on that side
 - Server auto-initializes files named "Service" or "Handler"; client auto-initializes "Controller" or "Handler"
 - File header: new files get Author and Modified By set to `Claude`, followed immediately by a feature description block (`--[[ ]]`) that describes what the file does, its role/layer in the feature, and its key dependencies (two to four sentences)
 

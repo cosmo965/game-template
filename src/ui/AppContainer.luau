@@ -2,18 +2,17 @@
 --Created Date: Saturday April 25th 2026 12:05:37 pm CEST
 --Author: Cosmovyz
 -------
---Last Modified: Friday April 25th 2026 12:00:00 pm CEST
+--Last Modified: Saturday April 26th 2026 12:00:00 am CEST
 --Modified By: Claude
 --]]
 
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Packages = ReplicatedStorage.Packages
 
 local React = require(Packages.React)
 local ReactReflex = require(Packages.ReactReflex)
-local RootProducer = require(ReplicatedStorage.Client.Features.Reflex.Controller)
+local RootProducer = require(ReplicatedStorage.Client.Features.Reflex.ReflexController)
 
 local Components = script.Parent.Generic.Components
 
@@ -23,61 +22,77 @@ local ScreenInsetsDisabledContainer = require(Components.ScreenInsetsDisabledCon
 
 local e = React.createElement
 
-local function AppContainer(props: {
-    onLoaded: () -> ()
-})
-    return e(React.Fragment, nil, {
-        AppContainer = e("ScreenGui", {
-            ref = props.onLoaded,
-            ResetOnSpawn = false,
-            IgnoreGuiInset = true,
-            -- ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-            ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-        }, {
-            ContextStack = e(ContextStack, {
-                -- Context providers go here
-                -- Does not receive any other properties besides children
-                providers = {
-                    -- Wrapped reflex
-                    function()
-                        return ReactReflex.ReflexProvider({
-                            producer = RootProducer.Store
-                        })
-                    end,
-                },
-            }, {
-                -- Screens go here
-                ErrorBoundary = e(ErrorBoundary, nil, {
-                    Menus = e(require(script.Parent.Components.Menus)),
-                    HUD = e(require(script.Parent.Components.HUD)),
-                    Billboards = e(require(script.Parent.Components.Billboards)),
-                }),
-            })
-        }),
+-- Discover HUD and Menu components from all features that have a UI folder
+local featureHUDs = {}
+local featureMenus = {}
 
-        ScreenInsetsDisabledContainer = e("ScreenGui", {
-            ResetOnSpawn = false,
-            IgnoreGuiInset = true,
-            ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-            ScreenInsets = Enum.ScreenInsets.None,
-        }, {
-            ContextStack = e(ContextStack, {
-                providers = {
-                    -- Wrapped
-                    function()
-                        return ReactReflex.ReflexProvider({
-                            producer = RootProducer.Store
-                        })
-                    end,
-                },
-            }, {
-                -- Screens go here
-                ErrorBoundary = e(ErrorBoundary, nil, {
-                    ScreenInsetsDisabledContainer = e(require(ScreenInsetsDisabledContainer)),
-                }),
-            })
-        })
-    })
+for _, featureFolder in ipairs(ReplicatedStorage.Client.Features:GetChildren()) do
+	local uiFolder = featureFolder:FindFirstChild("UI")
+	if not uiFolder then continue end
+
+	local hudFolder = uiFolder:FindFirstChild("HUD")
+	if hudFolder then
+		table.insert(featureHUDs, require(hudFolder))
+	end
+
+	local menuFolder = uiFolder:FindFirstChild("Menu")
+	if menuFolder then
+		table.insert(featureMenus, require(menuFolder))
+	end
+end
+
+local function AppContainer(props: {
+	onLoaded: () -> ()
+})
+	local featureElements = {}
+	for i, HUDComponent in ipairs(featureHUDs) do
+		featureElements["HUD_" .. i] = e(HUDComponent)
+	end
+	for i, MenuComponent in ipairs(featureMenus) do
+		featureElements["Menu_" .. i] = e(MenuComponent)
+	end
+
+	return e(React.Fragment, nil, {
+		AppContainer = e("ScreenGui", {
+			ref = props.onLoaded,
+			ResetOnSpawn = false,
+			IgnoreGuiInset = true,
+			ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+		}, {
+			ContextStack = e(ContextStack, {
+				providers = {
+					function()
+						return ReactReflex.ReflexProvider({
+							producer = RootProducer.Store,
+						})
+					end,
+				},
+			}, {
+				ErrorBoundary = e(ErrorBoundary, nil, featureElements),
+			}),
+		}),
+
+		ScreenInsetsDisabledContainer = e("ScreenGui", {
+			ResetOnSpawn = false,
+			IgnoreGuiInset = true,
+			ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+			ScreenInsets = Enum.ScreenInsets.None,
+		}, {
+			ContextStack = e(ContextStack, {
+				providers = {
+					function()
+						return ReactReflex.ReflexProvider({
+							producer = RootProducer.Store,
+						})
+					end,
+				},
+			}, {
+				ErrorBoundary = e(ErrorBoundary, nil, {
+					ScreenInsetsDisabledContainer = e(ScreenInsetsDisabledContainer),
+				}),
+			}),
+		}),
+	})
 end
 
 return AppContainer
